@@ -1,7 +1,7 @@
--- Active: 1770140831214@@127.0.0.1@3306@agenda
+-- Active: 1784750071384@@sakura.proxy.rlwy.net@19830@railway
 -- Criar banco de dados
-CREATE DATABASE mercado_livre;
-USE mercado_livre;
+
+USE railway;
 
 -- ===========================
 -- TABELA USUÁRIOS

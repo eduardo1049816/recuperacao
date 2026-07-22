@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Aura Market</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <a href="index.html" class="logo">Aura Market.</a>
+            <div class="search-bar">
+                <input type="text" id="inputPesquisa" placeholder="O que você procura?">
+                <button onclick="buscar()"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">Página Inicial</a>
+            <a href="pesquisa.html">Catálogo</a>
+            <!-- AQUI ESTÁ O BOTÃO DO CARRINHO -->
+            <a href="#" onclick="toggleCarrinho()"><i class="fa fa-shopping-cart"></i> Carrinho <span class="cart-badge" id="cart-count">0</span></a>
+            <a href="login.html"><i class="fa fa-user"></i> Acesso Restrito</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2 class="section-title">Resultados do Catálogo</h2>
+        <div class="grid" id="gridResultados"></div>
+    </main>
+
+    <!-- ABA LATERAL DO CARRINHO -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3><i class="fa fa-shopping-cart"></i> Meu Carrinho</h3>
+            <button class="close-cart" onclick="toggleCarrinho()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">R$ 0,00</span>
+            </div>
+            <button class="btn-checkout" onclick="finalizarCompra()">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+    <script>
+        // Carrega os produtos baseados na pesquisa quando a página abre
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const termo = params.get('q') || '';
+            document.getElementById('inputPesquisa').value = termo;
+            
+            const dados = getProdutos(termo);
+            const grid = document.getElementById('gridResultados');
+            
+            if(dados.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #64748b;">Nenhum produto encontrado para esta busca.</p>';
+            } else {
+                dados.forEach(i => grid.innerHTML += criarHTMLCard(i));
+            }
+            
+            // Garante que o número do carrinho esteja correto ao trocar de página
+            atualizarCarrinhoUI();
+        });
+    </script>
+</body>
+</html>

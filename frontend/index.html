@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Market - Sua Loja Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <a href="index.html" class="logo">Aura Market.</a>
+            <div class="search-bar">
+                <input type="text" id="inputPesquisa" placeholder="Busque produtos, bebidas e eletrônicos...">
+                <button onclick="buscar()"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">Página Inicial</a>
+            <a href="pesquisa.html">Catálogo</a>
+            <!-- AQUI ESTÁ O BOTÃO DO CARRINHO -->
+            <a href="#" onclick="toggleCarrinho()"><i class="fa fa-shopping-cart"></i> Carrinho <span class="cart-badge" id="cart-count">0</span></a>
+            <a href="login.html"><i class="fa fa-user"></i> Acesso Restrito</a>
+        </nav>
+    </header>
+
+    <div class="banner">
+        <h1>Tecnologia e Conveniência</h1>
+        <p>Os melhores produtos premium entregues na sua porta.</p>
+    </div>
+
+    <main>
+        <h2 class="section-title"><i class="fa fa-laptop"></i> Eletrônicos & Produtos</h2>
+        <div class="grid" id="gridProdutos"></div>
+
+        <h2 class="section-title"><i class="fa fa-glass-martini-alt"></i> Exclusivo Bebidas</h2>
+        <div class="grid" id="gridBebidas"></div>
+    </main>
+
+    <!-- ABA LATERAL DO CARRINHO (Fica escondida até clicar) -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3><i class="fa fa-shopping-cart"></i> Meu Carrinho</h3>
+            <button class="close-cart" onclick="toggleCarrinho()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Os itens aparecem aqui sozinhos -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">R$ 0,00</span>
+            </div>
+            <button class="btn-checkout" onclick="finalizarCompra()">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <!-- Mensagens flutuantes na tela -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

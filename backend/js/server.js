@@ -75,27 +75,53 @@ app.get("/produtos", async (req, res) => {
 // POST
 app.post("/produtos", async (req, res) => {
     try {
+
         const {
             nome,
             descricao,
             preco,
-            estoque,
-            categoria
+            categoria,
+            imagem_url
         } = req.body;
 
         await executeQuery(
-            `INSERT INTO produtos
-            (nome, descricao, preco, estoque, categoria)
-            VALUES (?, ?, ?, ?, ?)`,
-            [nome, descricao, preco, estoque, categoria]
+            `
+            INSERT INTO produtos
+            (
+                nome,
+                descricao,
+                preco,
+                estoque,
+                categoria,
+                imagem_url
+            )
+            VALUES
+            (
+                ?, ?, ?, ?, ?, ?
+            )
+            `,
+            [
+                nome,
+                descricao,
+                preco,
+                100,
+                categoria,
+                imagem_url
+            ]
         );
 
         res.status(201).json({
-            mensagem: "Produto cadastrado com sucesso!"
+            mensagem: "Produto cadastrado!"
         });
 
-    } catch (error) {
-        res.status(500).json({ erro: error.message });
+    } catch (erro) {
+
+        console.log(erro);
+
+        res.status(500).json({
+            erro: erro.message
+        });
+
     }
 });
 

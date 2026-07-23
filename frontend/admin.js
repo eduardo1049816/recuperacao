@@ -16,66 +16,85 @@ const tabelaCorpo = document.getElementById('tabelaCorpo');
 window.addEventListener('DOMContentLoaded', carregarTabela);
 
 // Exibe os dados na Tabela
-function carregarTabela() {
-    const dados = getProdutos();
-    tabelaCorpo.innerHTML = '';
+async function carregarTabela(){
 
-    dados.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>#${item.id}</td>
-            <td><img src="${item.imagem_url || 'https://via.placeholder.com/50'}" width="40" style="border-radius:5px;"></td>
-            <td><strong>${item.nome}</strong></td>
-            <td style="text-transform: capitalize;">${item.categoria}</td>
+    const response = await fetch("http://localhost:3000/produtos");
+
+    const dados = await response.json();
+
+    tabelaCorpo.innerHTML="";
+
+    dados.forEach(item=>{
+
+        tabelaCorpo.innerHTML+=`
+
+        <tr>
+
+            <td>${item.id_produto}</td>
+
+            <td>${item.nome}</td>
+
+            <td>${item.categoria}</td>
+
             <td>R$ ${Number(item.preco).toFixed(2)}</td>
+
             <td>
-                <button class="btn-acao btn-editar" onclick="preencherForm('${item.id}', '${item.nome}', '${item.descricao}', '${item.preco}', '${item.categoria}', '${item.imagem_url}')"><i class="fa fa-pen"></i></button>
-                <button class="btn-acao btn-excluir" onclick="deletarItem(${item.id})"><i class="fa fa-trash"></i></button>
+
+                <button onclick="deletarItem(${item.id_produto})">
+
+                    Excluir
+
+                </button>
+
             </td>
+
+        </tr>
+
         `;
-        tabelaCorpo.appendChild(tr);
+
     });
+
 }
 
 // Ação de SALVAR (Cadastrar Novo ou Alterar Existente)
-formulario.addEventListener('submit', (e) => {
+formulario.addEventListener("submit", async(e)=>{
+
     e.preventDefault();
 
-    const id = document.getElementById('idProduto').value;
-    const payload = {
-        nome: document.getElementById('nome').value,
-        descricao: document.getElementById('descricao').value,
-        preco: parseFloat(document.getElementById('preco').value),
-        categoria: document.getElementById('categoria').value,
-        imagem_url: document.getElementById('imagem_url').value
+    const produto={
+
+        nome:document.getElementById("nome").value,
+
+        descricao:document.getElementById("descricao").value,
+
+        preco:Number(document.getElementById("preco").value),
+
+        estoque:100,
+
+        categoria:document.getElementById("categoria").value
+
     };
 
-    if (payload.preco <= 0) {
-        mostrarToast("O preço deve ser maior que zero!", "erro");
-        return;
-    }
+    await fetch("http://localhost:3000/produtos",{
 
-    // Puxa o banco de dados atual
-    let produtos = getProdutos();
+        method:"POST",
 
-    if (id) {
-        // Se tem ID, estamos ALTERANDO um produto existente
-        const index = produtos.findIndex(p => p.id == id);
-        produtos[index] = { ...payload, id: Number(id) };
-        mostrarToast("Produto atualizado com sucesso!", "sucesso");
-    } else {
-        // Se NÃO tem ID, estamos CADASTRANDO um novo
-        payload.id = Date.now(); // Cria um ID único baseado na data
-        produtos.push(payload);
-        mostrarToast("Novo produto cadastrado!", "sucesso");
-    }
+        headers:{
 
-    // Salva de volta no banco de dados do navegador
-    localStorage.setItem('aura_produtos', JSON.stringify(produtos));
+            "Content-Type":"application/json"
 
-    formulario.reset(); 
-    document.getElementById('idProduto').value = '';
-    carregarTabela(); // Atualiza a tabela na mesma hora
+        },
+
+        body:JSON.stringify(produto)
+
+    });
+
+    formulario.reset();
+
+    carregarTabela();
+
+    mostrarToast("Produto cadastrado!");
+
 });
 
 // Coloca os dados do produto no formulário para Editar
@@ -90,16 +109,28 @@ function preencherForm(id, nome, desc, preco, cat, img) {
 }
 
 // Ação de EXCLUIR
-function deletarItem(id) {
-    if (confirm("Deseja realmente excluir este produto do catálogo?")) {
-        let produtos = getProdutos();
-        // Filtra removendo o produto que tem o ID selecionado
-        produtos = produtos.filter(p => p.id !== id);
-        
-        // Salva novamente
-        localStorage.setItem('aura_produtos', JSON.stringify(produtos));
-        
-        mostrarToast("Produto excluído permanentemente!", "sucesso");
-        carregarTabela();
+async function deletarItem(id) {
+
+    if (!confirm("Deseja realmente excluir este produto do catálogo?")) {
+        return;
     }
+
+    try {
+
+        await fetch(`http://localhost:3000/produtos/${id}`, {
+            method: "DELETE"
+        });
+
+        mostrarToast("Produto excluído com sucesso!", "sucesso");
+
+        carregarTabela();
+
+    } catch (error) {
+
+        console.error(error);
+
+        mostrarToast("Erro ao excluir produto.", "erro");
+
+    }
+
 }

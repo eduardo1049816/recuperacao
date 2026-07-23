@@ -1,4 +1,6 @@
 // Dados Iniciais
+const API_URL = "http://localhost:3000";
+
 const dadosIniciais = [
     { id: 1, nome: "Apple iPhone 14 Pro Max", descricao: "256GB Deep Purple", preco: 7499.00, categoria: "produto", imagem_url: "https://m.media-amazon.com/images/I/71yzJoE7WlL._AC_SX679_.jpg" },
     { id: 2, nome: "Fone Bluetooth JBL", descricao: "Bateria até 57h", preco: 250.00, categoria: "produto", imagem_url: "https://m.media-amazon.com/images/I/51+nXDpI8GL._AC_SX679_.jpg" },
@@ -8,9 +10,16 @@ const dadosIniciais = [
 if (!localStorage.getItem('aura_produtos')) localStorage.setItem('aura_produtos', JSON.stringify(dadosIniciais));
 
 // ===== LÓGICA DO BANCO DE DADOS =====
-function getProdutos(busca = '') {
-    const produtos = JSON.parse(localStorage.getItem('aura_produtos')) || [];
-    if (busca) return produtos.filter(item => item.nome.toLowerCase().includes(busca.toLowerCase()));
+async function getProdutos(busca = "") {
+    const response = await fetch(`${API_URL}/produtos`);
+    let produtos = await response.json();
+
+    if (busca) {
+        produtos = produtos.filter(produto =>
+            produto.nome.toLowerCase().includes(busca.toLowerCase())
+        );
+    }
+
     return produtos;
 }
 
@@ -30,15 +39,22 @@ function toggleCarrinho() {
     document.getElementById('cart-sidebar').classList.toggle('open');
 }
 
-function adicionarAoCarrinho(idProduto) {
-    const produtos = getProdutos();
-    const produto = produtos.find(p => p.id === idProduto);
-    if(produto) {
-        carrinho.push(produto);
-        localStorage.setItem('aura_carrinho', JSON.stringify(carrinho));
-        atualizarCarrinhoUI();
-        mostrarToast('Adicionado ao carrinho!', 'sucesso');
-    }
+async function adicionarAoCarrinho(idProduto){
+
+    const produtos = await getProdutos();
+
+    const produto = produtos.find(p=>p.id_produto == idProduto);
+
+    if(!produto) return;
+
+    carrinho.push(produto);
+
+    localStorage.setItem("aura_carrinho",JSON.stringify(carrinho));
+
+    atualizarCarrinhoUI();
+
+    mostrarToast("Produto adicionado ao carrinho!");
+
 }
 
 function removerDoCarrinho(index) {
@@ -107,25 +123,35 @@ function criarHTMLCard(item) {
                 <span class="badge">Envio Expresso</span>
                 <p class="titulo">${item.nome} - ${item.descricao}</p>
                 <p class="preco">${preco}</p>
-                <button class="btn-add-cart" onclick="adicionarAoCarrinho(${item.id})"><i class="fa fa-shopping-cart"></i> Comprar</button>
+                <button class="btn-add-cart"onclick="adicionarAoCarrinho(${item.id_produto})"><i class="fa fa-shopping-cart"></i> Comprar</button>
             </div>
         </div>
     `;
 }
 
 // Inicializa a Tela Home
-function carregarHome() {
-    const dados = getProdutos();
-    const gridProd = document.getElementById('gridProdutos');
-    const gridBeb = document.getElementById('gridBebidas');
+async function carregarHome() {
 
-    if (gridProd && gridBeb) {
-        gridProd.innerHTML = ''; gridBeb.innerHTML = '';
-        dados.forEach(item => {
-            if (item.categoria === 'produto') gridProd.innerHTML += criarHTMLCard(item);
-            else if (item.categoria === 'bebida') gridBeb.innerHTML += criarHTMLCard(item);
-        });
-    }
+    const dados = await getProdutos();
+
+    const gridProd = document.getElementById("gridProdutos");
+    const gridBeb = document.getElementById("gridBebidas");
+
+    if (!gridProd) return;
+
+    gridProd.innerHTML = "";
+    gridBeb.innerHTML = "";
+
+    dados.forEach(item => {
+
+        if(item.categoria === "produto")
+            gridProd.innerHTML += criarHTMLCard(item);
+
+        if(item.categoria === "bebida")
+            gridBeb.innerHTML += criarHTMLCard(item);
+
+    });
+
 }
 
 function buscar() {
